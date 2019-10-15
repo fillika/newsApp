@@ -70,6 +70,7 @@ const mainContainer = document.querySelector(".news-content");
 const form = document.forms["newsParam"];
 const countySelect = form.elements["country"];
 const searchInput = form.elements["search"];
+const linksArr = document.querySelectorAll(".news-cathegory__link");
 
 const newsService = (function() {
   const apiKey = "3b65ae1173ce482f935f54e5f8fe07a1";
@@ -154,4 +155,15 @@ form.addEventListener("submit", e => {
   } else {
     newsService.everything(search, getResponse);
   }
+});
+
+linksArr.forEach(item => {
+  item.addEventListener("click", function(e) {
+    e.preventDefault();
+    clear();
+
+    const cat = this.dataset.set;
+
+    newsService.cathegory(cat, getResponse);
+  });
 });
