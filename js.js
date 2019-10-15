@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
   M.AutoInit();
+  loadNews();
 });
 
 http = () => {
@@ -65,6 +66,7 @@ http = () => {
 };
 
 const myHttp = http();
+const mainContainer = document.querySelector(".news-content");
 
 const newsService = (function() {
   const apiKey = "3b65ae1173ce482f935f54e5f8fe07a1";
@@ -72,13 +74,58 @@ const newsService = (function() {
 
   return {
     topHeadlines(country = "ru", cb) {
-      myHttp.get(`${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`);
+      myHttp.get(
+        `${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`,
+        cb
+      );
     },
     everything(query, cb) {
-        myHttp.get(`${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`);
+      myHttp.get(`${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`);
     },
     cathegory(cat, cb) {
-        myHttp.get(`${apiUrl}/top-headlines?country=ru&category=${cat}&apiKey=${apiKey}`);
+      myHttp.get(
+        `${apiUrl}/top-headlines?country=ru&category=${cat}&apiKey=${apiKey}`
+      );
     }
   };
 })();
+
+function loadNews() {
+  newsService.topHeadlines("ru", getResponse);
+}
+
+// Здесь Я получаю массив с новостями
+function getResponse(err, res) {
+  renderNews(res.articles);
+}
+
+function renderNews(arr) {
+  let fragment = "";
+
+  arr.forEach(({ description, title, url, urlToImage }) => {
+    const result = createPost(description, title, url, urlToImage);
+    fragment += result;
+  });
+  mainContainer.insertAdjacentHTML("afterbegin", fragment);
+}
+
+function createPost(description, title, url, urlToImage) {
+  return `
+  <div class="news-container">
+  <div class="news-container__image-container">
+    <img src="${urlToImage}" alt="" class="news-container__img" />
+  </div>
+  <div class="news-container__content">
+    <h5 class="news-container__title">
+      ${title}
+    </h5>
+    <p class="news-container__text">
+     ${description}
+    </p>
+    <div class="news-container__learn-more">
+         <a href="${url}">Узнать больше</a>
+    </div>
+  </div>
+</div>
+  `;
+}
