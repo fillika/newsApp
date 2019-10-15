@@ -67,6 +67,9 @@ http = () => {
 
 const myHttp = http();
 const mainContainer = document.querySelector(".news-content");
+const form = document.forms["newsParam"];
+const countySelect = form.elements["country"];
+const searchInput = form.elements["search"];
 
 const newsService = (function() {
   const apiKey = "3b65ae1173ce482f935f54e5f8fe07a1";
@@ -80,11 +83,12 @@ const newsService = (function() {
       );
     },
     everything(query, cb) {
-      myHttp.get(`${apiUrl}/top-headlines?country=${country}&apiKey=${apiKey}`);
+      myHttp.get(`${apiUrl}/everything?q=${query}&apiKey=${apiKey}`, cb);
     },
     cathegory(cat, cb) {
       myHttp.get(
-        `${apiUrl}/top-headlines?country=ru&category=${cat}&apiKey=${apiKey}`
+        `${apiUrl}/top-headlines?country=ru&category=${cat}&apiKey=${apiKey}`,
+        cb
       );
     }
   };
@@ -96,6 +100,10 @@ function loadNews() {
 
 // Здесь Я получаю массив с новостями
 function getResponse(err, res) {
+  if (err) {
+    console.log(err);
+    return;
+  }
   renderNews(res.articles);
 }
 
@@ -129,3 +137,21 @@ function createPost(description, title, url, urlToImage) {
 </div>
   `;
 }
+
+function clear() {
+  mainContainer.innerHTML = "";
+}
+
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  clear();
+
+  const country = countySelect.value;
+  const search = searchInput.value;
+
+  if (!search) {
+    newsService.topHeadlines(country, getResponse);
+  } else {
+    newsService.everything(search, getResponse);
+  }
+});
